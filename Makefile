@@ -1,4 +1,4 @@
-SRC =	./srcs/parseo.c	./srcs/readmap.c	./srcs/movement.c	./srcs/mapa_is_funcional.c	./srcs/so_long.c
+SRC =	./srcs/parseo.c	./srcs/readmap.c	./srcs/movement.c	./srcs/mapa_is_funcional.c	./srcs/so_long.c	./srcs/enemy_ai.c
 OBJS = $(SRC:.c=.o)
 LIB = libmlx.dylib ./includes/printf/libftprintf.a
 HEADERS = ./includes/so_long.h

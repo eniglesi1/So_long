@@ -12,7 +12,7 @@
 
 SRC = 	ft_printf.c
 OBJS = $(SRC:.c=.o)
-LIB = ./libft/libft.a
+LIB = Libft/libft.a
 HEADERS = libft.h
 NAME = libftprintf.a
 FLAGS = -Wall -Wextra -Werror 
@@ -23,15 +23,15 @@ all: $(NAME)
 	$(CC) -c $(FLAGS) $< -o $@
 
 $(NAME): $(OBJS) ft_printf.h
-	@make -C ./libft
-	ar -crs $(NAME) $(OBJS) $(LIB) ./libft/*.o
+	@$(MAKE) -C Libft all
+	ar -crs $(NAME) $(OBJS) $(LIB)
 
 clean:
 	/bin/rm -f $(OBJS)
-	@make clean -C ./libft
+	@$(MAKE) -C Libft clean
 
 fclean: clean
 	/bin/rm -f $(NAME)
-	@make fclean -C ./libft
+	@$(MAKE) -C Libft fclean
 	
 re: fclean all

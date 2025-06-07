@@ -61,8 +61,6 @@ static int	ft_putunsigned(unsigned int a, int fd)
 	int	b;
 
 	b = 0;
-	if (a < 0)
-		a += 4294967295;
 	if (a / 10 > 0)
 		b += ft_putnbr_fd(a / 10, fd);
 	b += ft_putnbr_fd(a % 10, fd);

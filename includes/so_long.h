@@ -73,5 +73,6 @@ void	putline(int i, int j, t_so_long sl);
 void	dclvr(t_so_long *sl);
 void	printmapa(t_so_long sl, int j, size_t i);
 int		close_window(t_so_long *sl);
+void	update_enemies(t_so_long *sl);
 
 #endif

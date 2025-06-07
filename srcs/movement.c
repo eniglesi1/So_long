@@ -73,6 +73,7 @@ void	move(t_so_long *sl, int aux_i, int aux_j, int i)
 		mlx_put_image_to_window(sl->mlx, sl->mlx_win, sl->imgs.flr.img,
 			sl->imgs.flr.h * j, sl->imgs.flr.w * i);
 		ft_printf("-%i-\n", sl->moves);
+		update_enemies(sl);
 	}
 	else if (sl->mapa[i + aux_i][j + aux_j] == 'E' && canwin(sl->mapa, 0, 0))
 		win(sl);

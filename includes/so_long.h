@@ -41,6 +41,7 @@ typedef struct s_images
 	t_image		wl;
 	t_image		exit;
 	t_image		cons;
+	t_image enemy;
 }	t_images;
 
 typedef struct s_so_long
@@ -65,6 +66,7 @@ int		so_long(char **argv, char **mapa);
 int		ber(char **mapa, char *str, int option);
 int		canwin(char **mapa, int i, int j);
 void	win(t_so_long *sl);
+void	lose_game(t_so_long *sl);
 void	move(t_so_long *sl, int aux_i, int aux_j, int i);
 int		ft_a(int keycode, t_so_long *sl);
 void	putline(int i, int j, t_so_long sl);

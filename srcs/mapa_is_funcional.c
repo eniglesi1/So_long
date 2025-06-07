@@ -51,7 +51,7 @@ static int	incorrect_chars(char **mapa, int i, size_t n)
 		while (n <= ft_strlen(mapa[0]) - 2)
 		{
 			if (mapa[i][n] != '0' && mapa[i][n] != '1' && mapa[i][n] != 'E'
-				&& mapa[i][n] != 'P' && mapa[i][n] != 'C')
+				&& mapa[i][n] != 'P' && mapa[i][n] != 'C' && mapa[i][n] != 'X')
 				return (ft_printf("\nERROR\nCaracteres incorrectos en el mapa\n"));
 			n++;
 		}

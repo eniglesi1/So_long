@@ -32,6 +32,10 @@ void	putline(int i, int j, t_so_long sl)
 			mlx_put_image_to_window(sl.mlx, sl.mlx_win, sl.imgs.cons.img,
 				sl.imgs.flr.h * j + (sl.imgs.flr.h / 2 - sl.imgs.cons.h / 2),
 				sl.imgs.flr.w * i + (sl.imgs.flr.w / 2 - sl.imgs.cons.w / 2));
+		if (sl.mapa[i][j] == 'X')
+			mlx_put_image_to_window(sl.mlx, sl.mlx_win, sl.imgs.enemy.img,
+				sl.imgs.flr.h * j + (sl.imgs.flr.h / 2 - sl.imgs.enemy.h / 2),
+				sl.imgs.flr.w * i + (sl.imgs.flr.w / 2 - sl.imgs.enemy.w / 2));
 		j++;
 	}
 }
@@ -44,6 +48,7 @@ void	dclvr(t_so_long *sl)
 	sl->imgs.wl.relative_path = "./includes/images/wall.png";
 	sl->imgs.exit.relative_path = "./includes/images/Exit.png";
 	sl->imgs.cons.relative_path = "./includes/images/coin_01d.png";
+	sl->imgs.enemy.relative_path = "./includes/images/enemy.png";
 	sl->imgs.per.img = mlx_png_file_to_image(sl->mlx,
 			sl->imgs.per.relative_path, &sl->imgs.per.w, &sl->imgs.per.h);
 	sl->imgs.flr.img = mlx_png_file_to_image(sl->mlx,
@@ -54,6 +59,7 @@ void	dclvr(t_so_long *sl)
 			sl->imgs.exit.relative_path, &sl->imgs.exit.w, &sl->imgs.exit.h);
 	sl->imgs.cons.img = mlx_png_file_to_image(sl->mlx,
 			sl->imgs.cons.relative_path, &sl->imgs.cons.w, &sl->imgs.cons.h);
+	sl->imgs.enemy.img = mlx_png_file_to_image(sl->mlx, sl->imgs.enemy.relative_path, &sl->imgs.enemy.w, &sl->imgs.enemy.h);
 	sl->mlx_win = mlx_new_window(sl->mlx,
 			(sl->imgs.flr.w * (ft_strlen(sl->mapa[0])
 					- 1)) + 1, (sl->imgs.flr.h * sl->lns) + 1, "Hello world!");

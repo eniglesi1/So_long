@@ -42,6 +42,13 @@ void	win(t_so_long *sl)
 	exit(0);
 }
 
+void	lose_game(t_so_long *sl)
+{
+	mlx_destroy_window(sl->mlx, sl->mlx_win);
+	ber(sl->mapa, "\nGAME OVER! You were caught by an enemy!\n", 1);
+	exit(0);
+}
+
 void	move(t_so_long *sl, int aux_i, int aux_j, int i)
 {
 	int	j;
@@ -69,6 +76,8 @@ void	move(t_so_long *sl, int aux_i, int aux_j, int i)
 	}
 	else if (sl->mapa[i + aux_i][j + aux_j] == 'E' && canwin(sl->mapa, 0, 0))
 		win(sl);
+	else if (sl->mapa[i + aux_i][j + aux_j] == 'X')
+		lose_game(sl);
 }
 
 int	ft_a(int keycode, t_so_long *sl)

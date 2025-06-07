@@ -3,6 +3,8 @@
 #include <stdlib.h> // For malloc/free
 #include <stdbool.h> // For bool type
 
+#define MAX_ENEMIES_TRACKED 50 // Or another reasonable limit
+
 // --- Simple Queue Implementation (Array-based) ---
 #define MAX_QUEUE_SIZE 256 // Adjust if maps can be much larger
 
@@ -201,79 +203,113 @@ static t_point find_char_on_map(t_so_long *sl, char target_char, t_point start_s
 
 void update_enemies(t_so_long *sl) {
     t_point player_pos;
-    int r, c; // Loop iterators
+    t_point enemy_positions[MAX_ENEMIES_TRACKED];
+    int num_enemies_found = 0;
+    int r, c, i; // Loop iterators
 
+    // Cooldown logic: if it's not the enemies' turn to move, set up for next turn and exit.
     if (!sl->enemy_can_move_this_turn) {
-        sl->enemy_can_move_this_turn = 1; // Set up for next turn
-        return; // Enemies skip this turn
-    }
-
-    player_pos = find_char_on_map(sl, 'P', (t_point){0,0});
-    if (player_pos.r == -1 && player_pos.c == -1) { // Player not found
-        // No player, enemies do nothing. Could also be an error condition.
-        sl->enemy_can_move_this_turn = 0; // Still toggle for next turn
+        sl->enemy_can_move_this_turn = 1;
         return;
     }
 
+    // Find player's current position once.
+    player_pos = find_char_on_map(sl, 'P', (t_point){0,0});
+    if (player_pos.r == -1 && player_pos.c == -1) { // Player not found
+        sl->enemy_can_move_this_turn = 0; // Toggle for next turn even if no player
+        return; // No player, enemies do nothing.
+    }
+
+    // 1. Collect all current enemy positions.
     for (r = 0; r < sl->lns; r++) {
         for (c = 0; sl->mapa[r][c] && sl->mapa[r][c] != '\n'; c++) {
-            if (sl->mapa[r][c] == 'X') { // Found an enemy
-                t_point enemy_pos = {r, c};
-                t_point next_step;
+            if (sl->mapa[r][c] == 'X') {
+                if (num_enemies_found < MAX_ENEMIES_TRACKED) {
+                    enemy_positions[num_enemies_found].r = r;
+                    enemy_positions[num_enemies_found].c = c;
+                    num_enemies_found++;
+                } else {
+                    // Optional: Log if too many enemies for the tracking array
+                    ft_printf("WARNING: Exceeded MAX_ENEMIES_TRACKED (%d). Some enemies may not move.\n", MAX_ENEMIES_TRACKED);
+                    break; // Stop collecting if array is full for this row
+                }
+            }
+        }
+        if (num_enemies_found >= MAX_ENEMIES_TRACKED && sl->mapa[r][c] && sl->mapa[r][c] != '\n') {
+             // If inner loop broke due to full array, break outer too.
+            break;
+        }
+    }
 
-                ft_printf("UPDATE_ENEMIES: Processing enemy at (%d,%d), player_pos=(%d,%d)\n",
-                          enemy_pos.r, enemy_pos.c, player_pos.r, player_pos.c);
+    // 2. Process each found enemy from the collected list.
+    for (i = 0; i < num_enemies_found; i++) {
+        t_point enemy_pos = enemy_positions[i]; // Original position for this enemy this turn
+        t_point next_step;
 
-                next_step = find_path_bfs(sl, enemy_pos, player_pos);
+        // Important: Check if the enemy at its original position still exists.
+        // It might have been "killed" or moved by another enemy if interactions were more complex
+        // (not an issue in current design where enemies don't affect each other, but good practice).
+        // For this game, the main concern is if it was the player, which is handled by lose_game return.
+        // So, we assume sl->mapa[enemy_pos.r][enemy_pos.c] is still 'X' unless game ended.
+        // If an enemy moved into another enemy's spot, that's more complex (not handled yet).
+        // The critical part is that `enemy_pos` is from the *start-of-turn snapshot*.
 
-                ft_printf("UPDATE_ENEMIES: BFS returned next_step=(%d,%d) for enemy at (%d,%d)\n",
+        ft_printf("UPDATE_ENEMIES: Processing enemy originally at (%d,%d), player_pos=(%d,%d)\n",
+                  enemy_pos.r, enemy_pos.c, player_pos.r, player_pos.c);
+
+        next_step = find_path_bfs(sl, enemy_pos, player_pos);
+
+        ft_printf("UPDATE_ENEMIES: BFS returned next_step=(%d,%d) for enemy originally at (%d,%d)\n",
+                  next_step.r, next_step.c, enemy_pos.r, enemy_pos.c);
+
+        if (next_step.r != -1 && next_step.c != -1) { // Valid step from BFS
+            int dist_r = next_step.r - enemy_pos.r;
+            int dist_c = next_step.c - enemy_pos.c;
+            int abs_dist_r = (dist_r > 0) ? dist_r : -dist_r;
+            int abs_dist_c = (dist_c > 0) ? dist_c : -dist_c;
+
+            if ((abs_dist_r + abs_dist_c) != 1) { // Teleport/non-adjacent check
+                ft_printf("DEBUG_TELEPORT_PREVENTION: next_step (%d,%d) is NOT adjacent to enemy_pos (%d,%d). Preventing move.\n",
                           next_step.r, next_step.c, enemy_pos.r, enemy_pos.c);
+            } else { // Step IS adjacent, proceed with move logic
+                if (next_step.r == player_pos.r && next_step.c == player_pos.c) { // Collision with player
+                    ft_printf("UPDATE_ENEMIES: Enemy originally at (%d,%d) moving to player at (%d,%d). Game Over.\n",
+                              enemy_pos.r, enemy_pos.c, next_step.r, next_step.c);
+                    lose_game(sl);
+                    return; // Game over, exit function immediately
+                }
 
-                if (next_step.r != -1 && next_step.c != -1) { // Valid step from BFS
-                    int dist_r = next_step.r - enemy_pos.r;
-                    int dist_c = next_step.c - enemy_pos.c;
-                    int abs_dist_r = (dist_r > 0) ? dist_r : -dist_r;
-                    int abs_dist_c = (dist_c > 0) ? dist_c : -dist_c;
-
-                    if ((abs_dist_r + abs_dist_c) != 1) { // Teleport/non-adjacent check
-                        ft_printf("DEBUG_TELEPORT_PREVENTION: next_step (%d,%d) is NOT adjacent to enemy_pos (%d,%d). Preventing move.\n",
-                                  next_step.r, next_step.c, enemy_pos.r, enemy_pos.c);
-                        // Enemy does not move if step is not adjacent
-                    } else { // Step IS adjacent, proceed with move logic
-                        if (next_step.r == player_pos.r && next_step.c == player_pos.c) { // Collision with player
-                            ft_printf("UPDATE_ENEMIES: Enemy at (%d,%d) moving to player at (%d,%d). Game Over.\n",
-                                      enemy_pos.r, enemy_pos.c, next_step.r, next_step.c);
-                            lose_game(sl);
-                            return; // Game over, exit function immediately
-                        }
-
-                        // Check if tile is valid to move onto (floor, collectible, exit)
-                        if (sl->mapa[next_step.r][next_step.c] == '0' ||
-                            sl->mapa[next_step.r][next_step.c] == 'C' ||
-                            sl->mapa[next_step.r][next_step.c] == 'E') {
-
-                            ft_printf("UPDATE_ENEMIES: Moving enemy from (%d,%d) to (%d,%d)\n",
-                                      enemy_pos.r, enemy_pos.c, next_step.r, next_step.c);
-
-                            sl->mapa[enemy_pos.r][enemy_pos.c] = '0';       // Clear old position
-                            sl->mapa[next_step.r][next_step.c] = 'X';       // Set new position
-
-                            // Render floor at old position
-                            mlx_put_image_to_window(sl->mlx, sl->mlx_win, sl->imgs.flr.img,
-                                sl->imgs.flr.h * enemy_pos.c, sl->imgs.flr.w * enemy_pos.r);
-                            // Render enemy at new position
-                            mlx_put_image_to_window(sl->mlx, sl->mlx_win, sl->imgs.enemy.img,
-                                sl->imgs.flr.h * next_step.c + (sl->imgs.flr.h / 2 - sl->imgs.enemy.h / 2),
-                                sl->imgs.flr.w * next_step.r + (sl->imgs.flr.w / 2 - sl->imgs.enemy.w / 2));
-                        }
-                        // else: BFS suggested a valid adjacent step, but it's blocked
-                        // (e.g. by another enemy that moved there in the same turn, or a wall if BFS logic was imperfect).
-                        // In this case, the enemy simply doesn't move.
+                // Check if tile is valid to move onto (floor, collectible, exit)
+                // Also ensure the target tile isn't now occupied by another enemy that moved earlier in this same turn's enemy phase.
+                if ((sl->mapa[next_step.r][next_step.c] == '0' ||
+                     sl->mapa[next_step.r][next_step.c] == 'C' ||
+                     sl->mapa[next_step.r][next_step.c] == 'E')) {
+                    // AND sl->mapa[enemy_pos.r][enemy_pos.c] must still be 'X' (the one we are processing)
+                    // This check is important because the map is live.
+                    if (sl->mapa[enemy_pos.r][enemy_pos.c] != 'X') {
+                         ft_printf("UPDATE_ENEMIES: Enemy at (%d,%d) already moved or was altered. Skipping move to (%d,%d).\n", enemy_pos.r, enemy_pos.c, next_step.r, next_step.c);
+                         continue; // This specific enemy might have been involved in a previous enemy's move (e.g. got overwritten)
                     }
-                } // End if (valid step from BFS)
-            } // End if (found an enemy 'X')
-        } // End for (cols c)
-    } // End for (rows r)
 
-    sl->enemy_can_move_this_turn = 0; // Enemies skip next turn
+                    ft_printf("UPDATE_ENEMIES: Moving enemy from (%d,%d) to (%d,%d)\n",
+                              enemy_pos.r, enemy_pos.c, next_step.r, next_step.c);
+
+                    sl->mapa[enemy_pos.r][enemy_pos.c] = '0';       // Clear original position
+                    sl->mapa[next_step.r][next_step.c] = 'X';       // Set new position
+
+                    // Render floor at original position
+                    mlx_put_image_to_window(sl->mlx, sl->mlx_win, sl->imgs.flr.img,
+                        sl->imgs.flr.h * enemy_pos.c, sl->imgs.flr.w * enemy_pos.r);
+                    // Render enemy at new position
+                    mlx_put_image_to_window(sl->mlx, sl->mlx_win, sl->imgs.enemy.img,
+                        sl->imgs.flr.h * next_step.c + (sl->imgs.flr.h / 2 - sl->imgs.enemy.h / 2),
+                        sl->imgs.flr.w * next_step.r + (sl->imgs.flr.w / 2 - sl->imgs.enemy.w / 2));
+                }
+                // else: BFS suggested an adjacent step, but it's blocked by wall / other enemy, or invalid tile.
+                // Enemy doesn't move.
+            }
+        } // End if (valid step from BFS)
+    } // End for (processing collected enemies i)
+
+    sl->enemy_can_move_this_turn = 0; // Enemies skip next player turn
 } // End update_enemies function

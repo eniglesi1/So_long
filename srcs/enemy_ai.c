@@ -197,6 +197,11 @@ static t_point find_char_on_map(t_so_long *sl, char target_char, t_point start_s
 }
 
 void update_enemies(t_so_long *sl) {
+    if (!sl->enemy_can_move_this_turn) {
+        sl->enemy_can_move_this_turn = 1; // Set up for next turn
+        return; // Enemies skip this turn
+    }
+
     t_point player_pos = find_char_on_map(sl, 'P', (t_point){0,0});
     if (player_pos.r == -1) {
         return;
@@ -254,4 +259,6 @@ void update_enemies(t_so_long *sl) {
             }
         }
     }
+    // If enemies did move (or attempt to) this turn, they skip the next one.
+    sl->enemy_can_move_this_turn = 0;
 }

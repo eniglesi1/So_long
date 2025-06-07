@@ -52,6 +52,7 @@ typedef struct s_so_long
 	int			moves;
 	int			lns;
 	t_images	imgs;
+	int			enemy_can_move_this_turn;
 }	t_so_long;
 
 enum {

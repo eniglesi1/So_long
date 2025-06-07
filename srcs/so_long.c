@@ -100,6 +100,7 @@ int	main(int argc, char **argv)
 	dclvr(&sl);
 	printmapa(sl, 0, 0);
 	sl.moves = 0;
+	sl.enemy_can_move_this_turn = 1; // Enemies are ready to move after player's first action
 	mlx_key_hook(sl.mlx_win, ft_a, &sl);
 	mlx_hook(sl.mlx_win, ON_DESTROY, 0, close_window, &sl);
 	mlx_loop(sl.mlx);

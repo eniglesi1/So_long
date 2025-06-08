@@ -23,7 +23,7 @@
  *
  * The generator attempts to ensure maps are playable by checking paths
  * and basic map rules. If generation fails validation, it will print
- * an error (currently does not auto-retry).
+ * an error. It uses a retry loop (up to a set number of attempts) to find a playable configuration.
  */
 #include <stdio.h>
 #include <stdlib.h> // For malloc, free, rand, srand
@@ -31,6 +31,7 @@
 #include <string.h> // For memset, strcpy (if needed later)
 
 #define MAX_COLLECTIBLES_BUFFER_SIZE 256 // Buffer for validating collectibles
+#define MAX_GENERATION_ATTEMPTS 50
 
 // Define cell types for map characters
 #define MAP_WALL '1'
@@ -90,8 +91,8 @@ static Point dequeue_point(PointQueue *q) {
 static int is_valid_for_validation_bfs(char cell_char, int r, int c, int height, int width, char **visited_bfs) {
     if (r < 0 || r >= height || c < 0 || c >= width) return 0; // Bounds
     if (visited_bfs[r][c]) return 0; // Already visited
-    if (cell_char == MAP_WALL) return 0; // Wall
-    return 1; // Path, Player, Exit, Collectible are all traversable
+    if (cell_char == MAP_WALL || cell_char == 'X') return 0; // Wall or Enemy blocks these specific validation paths
+    return 1; // Path, Player, Exit, Collectible are traversable for P->E, P->C checks
 }
 
 // BFS to check if a path exists between start and target
@@ -174,9 +175,12 @@ static int is_map_playable(char **grid, int height, int width, int num_c_expecte
                 } else {
                     fprintf(stderr, "Warning: Found more collectibles than buffer can hold for validation (%d).\n", MAX_COLLECTIBLES_BUFFER_SIZE);
                 }
-            } else if (grid[r][c] != MAP_PATH && grid[r][c] != MAP_WALL) {
-                fprintf(stderr, "Validation Error: Invalid character '%c' in map at (%d,%d).\n", grid[r][c], r,c);
-                return 0; // Invalid character
+            } else if (grid[r][c] == MAP_PATH) { /* path is fine */ }
+            else if (grid[r][c] == MAP_WALL) { /* wall is fine */ }
+            else if (grid[r][c] == 'X') { /* enemy is fine for char validation */ }
+            else { // Any other character is invalid
+                fprintf(stderr, "Validation Error: Invalid character '%c' at (%d,%d).\n", grid[r][c], r, c);
+                return 0;
             }
             // Wall enclosure check (basic: check borders)
             if ((r == 0 || r == height - 1 || c == 0 || c == width - 1) && grid[r][c] != MAP_WALL) {
@@ -353,16 +357,17 @@ void generate_maze_dfs(char **grid, int height, int width, int r, int c, char **
 
 int main(int argc, char *argv[]) {
     // Basic argument check (example)
-    if (argc < 4) {
-        // Updated to reflect typical usage: ./mapgen <width> <height> <filename> [collectibles]
-        fprintf(stderr, "Usage: %s <width> <height> <filename> [num_collectibles]\n", argv[0]);
+    if (argc < 4) { // Essential args: width, height, filename
+        fprintf(stderr, "Usage: %s <width> <height> <filename.ber> [num_collectibles] [num_enemies]\n", argv[0]);
+        fprintf(stderr, "  num_collectibles: defaults to 5. Min 1.\n");
+        fprintf(stderr, "  num_enemies: defaults to 3. Min 0.\n");
         return 1;
     }
 
     // Seed random number generator
     srand(time(NULL));
 
-    // Argument parsing is done above this point in the code structure
+    // Argument parsing
     int width = atoi(argv[1]);
     int height = atoi(argv[2]);
     const char *filename = argv[3];
@@ -370,113 +375,147 @@ int main(int argc, char *argv[]) {
     if (argc > 4) {
         num_collectibles = atoi(argv[4]);
         if (num_collectibles < 1) {
-            fprintf(stderr, "Warning: Number of collectibles must be at least 1. Using default 5.\n");
-            num_collectibles = 5;
+            fprintf(stderr, "Warning: Number of collectibles must be at least 1. Setting to 1.\n");
+            num_collectibles = 1;
+        }
+    }
+    int num_enemies = 3; // Default for enemies
+    if (argc > 5) {
+        num_enemies = atoi(argv[5]);
+        if (num_enemies < 0) {
+            fprintf(stderr, "Warning: Number of enemies cannot be negative. Setting to 0.\n");
+            num_enemies = 0;
         }
     }
 
-    // Add these printfs:
     printf("Generator Parameters:\n");
     printf("  Width: %d\n", width);
     printf("  Height: %d\n", height);
     printf("  Output File: %s\n", filename);
     printf("  Collectibles: %d\n", num_collectibles);
+    printf("  Enemies: %d\n", num_enemies);
     printf("------------------------------------\n");
-    // The "Map generator starting..." message is already printed before arg parsing.
-    // It can be moved here or kept as is. Let's assume it stays before for now.
 
-    if (width < 5 || height < 5) { // Basic size validation
+    if (width < 5 || height < 5) {
         fprintf(stderr, "Error: Width and height must be at least 5.\n");
         return 1;
     }
 
-    char **grid = create_grid(height, width);
-    if (!grid) {
-        fprintf(stderr, "Error: Could not create grid.\n");
-        return 1;
-    }
+    char **grid = NULL;
+    char **visited = NULL;
+    Point *floor_tiles = NULL;
+    int playable_map_generated = 0;
+    int attempt;
 
-    char **visited = (char **)malloc(height * sizeof(char *));
-    if (!visited) { free_grid(grid, height); return 1; }
-    for (int i = 0; i < height; i++) {
-        visited[i] = (char *)calloc(width, sizeof(char)); // Initialize to 0
-        if (!visited[i]) {
-            // Proper cleanup for visited and grid
-            for(int j=0; j<i; j++) free(visited[j]);
-            free(visited);
-            free_grid(grid, height);
-            return 1;
+    for (attempt = 0; attempt < MAX_GENERATION_ATTEMPTS; attempt++) {
+        printf("Generation Attempt %d/%d...\n", attempt + 1, MAX_GENERATION_ATTEMPTS);
+
+        grid = create_grid(height, width);
+        if (!grid) {
+            fprintf(stderr, "Error: Could not create grid on attempt %d.\n", attempt + 1);
+            continue;
         }
+
+        visited = (char **)malloc(height * sizeof(char *));
+        if (!visited) {
+            fprintf(stderr, "Error: Malloc failed for visited rows on attempt %d.\n", attempt + 1);
+            free_grid(grid, height); grid = NULL;
+            continue;
+        }
+        int visited_row_allocated_until = -1;
+        for (int i = 0; i < height; i++) {
+            visited[i] = (char *)calloc(width, sizeof(char));
+            if (!visited[i]) {
+                fprintf(stderr, "Error: Calloc failed for visited col on attempt %d, row %d.\n", attempt + 1, i);
+                for(int j=0; j<=visited_row_allocated_until; j++) free(visited[j]);
+                free(visited); visited = NULL;
+                free_grid(grid, height); grid = NULL;
+                goto next_attempt;
+            }
+            visited_row_allocated_until = i;
+        }
+
+        generate_maze_dfs(grid, height, width, 1, 1, visited);
+
+        int num_floor_tiles = 0;
+        floor_tiles = get_floor_tiles(grid, height, width, &num_floor_tiles);
+
+        int required_tiles = 1 + 1 + num_collectibles + num_enemies;
+        if (!floor_tiles || num_floor_tiles < required_tiles) {
+            fprintf(stderr, "Attempt %d: Not enough floor tiles (%d) for P, E, %d C, %d X. Required: %d.\n",
+                    attempt + 1, num_floor_tiles, num_collectibles, num_enemies, required_tiles);
+            if (floor_tiles) free(floor_tiles); floor_tiles = NULL;
+            for (int i = 0; i < height; i++) free(visited[i]); // Visited is fully allocated here
+            free(visited); visited = NULL;
+            free_grid(grid, height); grid = NULL;
+            continue;
+        }
+
+        shuffle_points(floor_tiles, num_floor_tiles);
+
+        Point player_pos = floor_tiles[0];
+        grid[player_pos.r][player_pos.c] = 'P';
+        grid[floor_tiles[1].r][floor_tiles[1].c] = 'E'; // Directly use, exit_pos var not strictly needed
+
+        if (num_collectibles > 0) {
+            // printf("Placing %d collectibles.\n", num_collectibles); // Optional, already in params
+            for (int i = 0; i < num_collectibles; i++) {
+                Point collectible_pos = floor_tiles[2 + i];
+                grid[collectible_pos.r][collectible_pos.c] = 'C';
+            }
+        }
+
+        if (num_enemies > 0) {
+            // printf("Placing %d enemies.\n", num_enemies); // Optional
+            for (int i = 0; i < num_enemies; i++) {
+                Point enemy_pos = floor_tiles[2 + num_collectibles + i];
+                grid[enemy_pos.r][enemy_pos.c] = 'X';
+            }
+        }
+
+        free(floor_tiles); floor_tiles = NULL;
+
+        if (is_map_playable(grid, height, width, num_collectibles)) {
+            printf("Playable map generated on attempt %d!\n", attempt + 1);
+            // Temporary: Print grid to console here to see the valid one
+            printf("Generated Playable Maze (Attempt %d):\n", attempt + 1);
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    printf("%c", grid[i][j]);
+                }
+                printf("\n");
+            }
+            playable_map_generated = 1;
+            for (int i = 0; i < height; i++) free(visited[i]);
+            free(visited); visited = NULL;
+            break;
+        } else {
+            printf("Attempt %d: Generated map is NOT playable (check stderr for details from is_map_playable).\n", attempt + 1);
+            for (int i = 0; i < height; i++) free(visited[i]);
+            free(visited); visited = NULL;
+            free_grid(grid, height); grid = NULL;
+        }
+    next_attempt:;
     }
 
-    // Start DFS from (1,1) - assuming 0-indexed grid and borders are left as walls
-    // The DFS implementation carves paths such that (0,0), (0,1)... (1,0) etc. remain walls.
-    generate_maze_dfs(grid, height, width, 1, 1, visited);
-
-    int num_floor_tiles = 0;
-    Point *floor_tiles = get_floor_tiles(grid, height, width, &num_floor_tiles);
-
-    if (!floor_tiles || num_floor_tiles < (1 + 1 + num_collectibles)) { // Need space for P, E, and C's
-        fprintf(stderr, "Error: Not enough floor tiles (%d) to place Player, Exit, and %d Collectibles.\n",
-                num_floor_tiles, num_collectibles);
-        // Cleanup:
-        if(floor_tiles) free(floor_tiles);
-        for (int i = 0; i < height; i++) free(visited[i]);
-        free(visited);
-        free_grid(grid, height);
-        return 1;
-    }
-
-    shuffle_points(floor_tiles, num_floor_tiles);
-
-    // Place Player
-    Point player_pos = floor_tiles[0];
-    grid[player_pos.r][player_pos.c] = 'P';
-
-    // Place Exit
-    Point exit_pos = floor_tiles[1];
-    grid[exit_pos.r][exit_pos.c] = 'E';
-
-    // Place Collectibles
-    printf("Placing %d collectibles.\n", num_collectibles); // Use ft_printf if available, else printf
-    for (int i = 0; i < num_collectibles; i++) {
-        Point collectible_pos = floor_tiles[2 + i];
-        grid[collectible_pos.r][collectible_pos.c] = 'C';
-    }
-
-    // Free the list of floor tiles
-    free(floor_tiles);
-
-    // Validate the map
-    if (is_map_playable(grid, height, width, num_collectibles)) {
-        printf("Generated map is playable!\n");
+    if (playable_map_generated) {
         if (write_map_to_file(grid, height, width, filename) == 0) {
             // Success message is in write_map_to_file
         } else {
             fprintf(stderr, "Failed to write map to file %s.\n", filename);
         }
+        free_grid(grid, height);
     } else {
-        printf("Generated map is NOT playable. Please check stderr for details. Consider trying again.\n");
-        // If not playable, do not write to file.
-    }
-
-    // Temporary: Print grid to console
-    printf("Generated Maze:\n");
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            printf("%c", grid[i][j]);
+        fprintf(stderr, "Failed to generate a playable map after %d attempts.\n", MAX_GENERATION_ATTEMPTS);
+        if (grid) free_grid(grid, height);
+        if (visited) {
+             for (int i = 0; i < height; i++) if(visited[i]) free(visited[i]);
+             free(visited);
         }
-        printf("\n");
+        if (floor_tiles) free(floor_tiles);
+        return 1;
     }
 
-    // Cleanup
-    for (int i = 0; i < height; i++) {
-        free(visited[i]);
-    }
-    free(visited);
-    free_grid(grid, height);
-
-    printf("Map generator finished maze generation phase.\n");
-
+    printf("Map generator finished.\n"); // Changed from "finished maze generation phase"
     return 0;
 }

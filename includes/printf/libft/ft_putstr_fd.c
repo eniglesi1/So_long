@@ -1,19 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_tolower.c                                       :+:      :+:    :+:   */
+/*   ft_putstr_fd.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eniglesi <eniglesi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/08/06 18:48:40 by eniglesi          #+#    #+#             */
-/*   Updated: 2021/08/06 19:26:01 by eniglesi         ###   ########.fr       */
+/*   Created: 2021/09/18 13:11:26 by marvin            #+#    #+#             */
+/*   Updated: 2021/09/18 13:23:24 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-int	ft_tolower(char c)
+#include "libft.h"
+
+void	ft_putstr_fd(char *s, int fd)
 {
-	if (c > 64 && c < 91)
-		return (c + 32);
-	else
-		return (c);
+	if (s == NULL)
+		write(fd, "(null)", 6);
+	write(fd, s, ft_strlen(s));
 }

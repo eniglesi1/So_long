@@ -38,20 +38,22 @@ static int	ft_hexa(unsigned long i, char *base, int n)
 	long	aux;
 	int		baits;
 
+	if (n == 4 && i == 0)
+		return (ft_putstr_fd_r("(nil)", 1));
 	aux = ft_baits(i);
-	c = ft_calloc(sizeof(char), aux + 1);
 	baits = 0;
+	c = ft_calloc(sizeof(char), aux + 1);
 	if (n == 4)
-		baits += ft_putstr_fd("0x", 1);
+		baits += ft_putstr_fd_r("0x", 1);
 	if (i == 0)
-		baits += ft_putchar_fd('0', 1);
+		baits += ft_putchar_fd_r('0', 1);
 	while (aux >= 0 && i > 0)
 	{
 		aux--;
 		c[aux] = base[i % 16];
 		i /= 16;
 	}
-	baits += ft_putstr_fd(c, 1);
+	baits += ft_putstr_fd_r(c, 1);
 	free(c);
 	return (baits);
 }
@@ -61,11 +63,9 @@ static int	ft_putunsigned(unsigned int a, int fd)
 	int	b;
 
 	b = 0;
-	if (a < 0)
-		a += 4294967295;
 	if (a / 10 > 0)
-		b += ft_putnbr_fd(a / 10, fd);
-	b += ft_putnbr_fd(a % 10, fd);
+		b += ft_putnbr_fd_r(a / 10, fd);
+	b += ft_putnbr_fd_r(a % 10, fd);
 	return (b);
 }
 
@@ -77,11 +77,11 @@ static int	put(char a, va_list str)
 	if (a == '%')
 		baits = write(1, "%", 1);
 	else if (a == 's')
-		baits = ft_putstr_fd(va_arg(str, char *), 1);
+		baits = ft_putstr_fd_r(va_arg(str, char *), 1);
 	else if (a == 'c')
-		baits = ft_putchar_fd(va_arg(str, int), 1);
+		baits = ft_putchar_fd_r(va_arg(str, int), 1);
 	else if (a == 'd' || a == 'i')
-		baits = ft_putnbr_fd(va_arg(str, int), 1);
+		baits = ft_putnbr_fd_r(va_arg(str, int), 1);
 	else if (a == 'u')
 		baits = ft_putunsigned(va_arg(str, unsigned int), 1);
 	else if (a == 'x')
@@ -118,3 +118,11 @@ int	ft_printf(const char *a, ...)
 	va_end(args);
 	return (baits);
 }
+
+// int main()
+// {
+// 	void *p = 0;
+// 	void *p1 = 0;
+// 	ft_printf(" %p %p ", p, p1);
+// 	printf(" %p %p ", p, p1);
+// }

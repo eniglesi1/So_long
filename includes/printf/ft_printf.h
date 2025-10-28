@@ -17,8 +17,7 @@
 # include <string.h>
 # include <stddef.h>
 # include <stdio.h>
-# include "Libft/libft.h"
-# include <fcntl.h>
+# include "libft/libft.h"
 
 int	ft_printf(const char *a, ...);
 

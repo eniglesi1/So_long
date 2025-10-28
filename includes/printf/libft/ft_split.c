@@ -21,7 +21,7 @@ static int	count_words(char const *s, char c)
 	i = 0;
 	if (c < 0)
 		return (0);
-	if (s[0] != c)
+	if (s[0] != c && s[0] != 0)
 		words++;
 	while (s[i] != '\0' && s[i + 1] != '\0')
 	{
@@ -60,7 +60,7 @@ char	**ft_split(char const *s, char c)
 		if (s[i] != c)
 		{
 			ptr[start] = ft_substr(s, i, word_len(s, c, i));
-			i += word_len(s, c, i);
+			i = i + word_len(s, c, i);
 			start++;
 		}
 		else

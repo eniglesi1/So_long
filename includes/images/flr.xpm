@@ -1,0 +1,71 @@
+/* aPM */
+static char *_a45d74a4e20412d8e62bf5a0c0f81b2b5IB7zRrgdSVdZbC[] = {
+/* cblumns rbws cblbrs chars-per-pixel */
+"48 48 4 1 ",
+"  c #053300",
+"j c #073E00",
+"a c #0B4F03",
+"b c #0C7200",
+/* pixels */
+
+
+
+
+
+
+
+
+
+
+
+
+
+"babbbbbbbbbbbbbbbbabbbbbbb   bbabbbbbbbbbbbbbbab",
+"babbbbjbbbbbbbbbbbaa      bbbbbabbbbbbbbbbbbbbab",
+"aabbbbbbabbb  bbbb  abbbbbbbbbaabbbbbbbbbbbbbbaa",
+"bbbbb bbbbbjbb  bbbbbbbbbbbbbbbbbbbbbjbbbbbbbbbb",
+"bbbb  bbbabjbbaa  jjbbbaaaaaaaabbbbbbjbbbbbbbbbb",
+"bbbb bbaabajbbbbbb   bbbbbbbbbbbbbbbbjbbaabbbbbb",
+"abbj babaaa bbbaabbjbbbaaabbbbbbbjbbaajbbabbbbba",
+"abb jbabbba jababbbajbb bbbbbbbbjbbbabjbbbbbbbba",
+"bbj jabbbba jbbabbbajaab  bbabbbjbbbabjbbbbbbbjb",
+"bbj aj bbbbb aabjbbabjbbbb  abbbjbbbjbjbbbbbbjbb",
+"bbj ab bbabb bbbjbbbbbjaaaab    jbbjbbjbbbbbbjbb",
+"bbjabb jbabb bajabbabaabbbababbj   jbbjbbbbbbjbb",
+"bjbbbb jbabb jbjbbababb bbbbbabjbbjbbbjaaaaabjbb",
+"bjbbbb bjabb jbjbbaabjbb     bbjbbjb bjbbbbbbj b",
+"bbbbbb bbjbb jjbbbbbbjbbbbbbbajbbbjb bbbbbbbbj b",
+"bbbbbb jbbjb jjbbbabbjbbabbbbajabjab bbbbbbbbj b",
+"bb bbb jbabb jjabbabbjbbbbbbaajbajab babbbbbjb b",
+"aa aa  jabbb jjabbbbbjbajbbbbabbbjab bbababbjb a",
+"bb bb  jab             bjbbbbabbbjaa bbababjbb b",
+"ba ab  jababb jbjbaabbbjbbbbaabbbjab abababjba b",
+"bb bbb jaba b ajbbbbbbbjbbbbbbbbajba abababbba b",
+"bb bbb jbbb babjabbbbbbjabbbbb abjbb ababbbbba b",
+"bb bbb jab baajabbaabaajbabbba bbjaa bbabbbbba b",
+"bb abb ja babbjbbbbbaajbb baba bbjba baba bbb bb",
+"bb bbb j bb bjbabaaaaaja abbjj bbjbb baba bbb bb",
+"bb bbb j abb jbabbaabbj bbbjbb bbjbb baba bbb bb",
+"ab bbb  abbbj  bbaabbb bbbjbba bbjbb baba bjb ba",
+"ab bbb abaabjbb abbbbb bbjbabb aajbb aaaa bjb aa",
+"aba bb bbabjaaaj  bbb bbjbbbab aaaab baaa jbb aa",
+"aaa b  abaajabbjba a bbjbbabaa bbbba baba jb bba",
+"bbb b  abajbabbjbba  bjbbbbbbb babbbbaaba jb bbb",
+"bbb bb abajbabbjbbb b  abbbbbj bbbbbbbabb jb bbb",
+"bbb bbjbbbjbabbjbb jjbb bbbjjb bbbbbbbbbb jbbbbb",
+"bbbabbbbbbbbbbjbb abbbba bjbab bbbbbabbbb jbbbbb",
+"bbbaabbbbbbbabjb bbbbbbab   ab aabbabbbbb jbbbbb",
+"bbbbbbabjbbbabj bbbbbajjjbab b babababbbb babbbb",
+"bbbabaabjbbbbb bbbbjjjbabbabab bbbabbaabb bbbbbb",
+"bbbabbbjjbbaa ab     aababbbbb bbaabbbbab bbbbbb",
+"bbbbabbjbbbbb   bbbabaababbbbb babbbbbbbb bbbbbb",
+"bbbbbbbjbbbb jbbabbbbbbbbbbbbb aababbbbbb bbbbb ",
+"bbbbbbbjbjbbjbbbaabbbbbbbababb aabbbbbbbb abbbb ",
+"bbbbabbbjbbbbbbbbbaabbabaabaaa bbbbbbbjbbabbbbb ",
+"bab babbbbbbbbaabbbbabbbbbbaba bbbbbbjbbbaabbba ",
+"aab aabbbbbbbbbbbbbbbaaaaaabbbaabbjjjbbbbbabbbaa",
+"bbbb babbbbbbbbbjjjjjbbbbbbbbbaabbbbbbbbbabbbbbb",
+"aabbb  bbbaabaaaaaabbjjjjjbbaaaaaaaaa  aaaabbbaa",
+"babbbbb       bbbbbbbbbbbbbbbbbabbbbbba   bbbbab",
+"babbabbbbbbbbbbbbabbbbbaaaabbbbabbbbbbbbbbbbbbab"
+};

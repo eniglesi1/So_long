@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   movement.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eniglesi <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: eiglesia <eiglesia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/03 09:34:45 by eniglesi          #+#    #+#             */
-/*   Updated: 2022/05/03 09:35:01 by eniglesi         ###   ########.fr       */
+/*   Updated: 2025/10/29 14:28:25 by eiglesia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,15 +73,15 @@ void	move(t_so_long *sl, int aux_i, int aux_j, int i)
 
 int	ft_a(int keycode, t_so_long *sl)
 {
-	if (keycode == 13 || keycode == 126)
+	if (keycode == 119 || keycode == 65362)
 		move(sl, -1, 0, 0);
-	if (keycode == 0 || keycode == 123)
+	if (keycode == 97 || keycode == 65361)
 		move(sl, 0, -1, 0);
-	if (keycode == 1 || keycode == 125)
+	if (keycode == 115 || keycode == 65364)
 		move(sl, 1, 0, 0);
-	if (keycode == 2 || keycode == 124)
+	if (keycode == 100 || keycode == 65363)
 		move(sl, 0, 1, 0);
-	if (keycode == 53)
+	if (keycode == 65307)
 	{
 		mlx_destroy_window(sl->mlx, sl->mlx_win);
 		ber(sl->mapa, "", 1);

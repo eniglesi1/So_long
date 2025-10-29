@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   so_long.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eniglesi <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: eiglesia <eiglesia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/21 18:06:41 by eniglesi          #+#    #+#             */
-/*   Updated: 2022/02/21 18:06:43 by eniglesi         ###   ########.fr       */
+/*   Updated: 2025/10/29 14:26:46 by eiglesia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,8 @@
 # define SO_LONG_H
 # include "./printf/ft_printf.h"
 # include <fcntl.h>
-# include "./mlx/mlx.h"
+# include "../minilibx-linux/mlx.h"
+# include "../minilibx-linux/mlx_int.h"
 
 typedef struct s_data
 {
@@ -24,7 +25,7 @@ typedef struct s_data
 	int		line_length;
 	int		endian;
 }	t_data;
-//w = width && h = height 
+//w = width && h = height
 typedef struct s_image
 {
 	void	*mlx;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   so_long.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eniglesi <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: eiglesia <eiglesia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/21 12:16:51 by eniglesi          #+#    #+#             */
-/*   Updated: 2022/02/21 12:16:53 by eniglesi         ###   ########.fr       */
+/*   Updated: 2025/10/29 13:00:30 by eiglesia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,20 +39,20 @@ void	putline(int i, int j, t_so_long sl)
 void	dclvr(t_so_long *sl)
 {
 	sl->mlx = mlx_init();
-	sl->imgs.per.relative_path = "./includes/images/per.png";
-	sl->imgs.flr.relative_path = "./includes/images/flr.png";
-	sl->imgs.wl.relative_path = "./includes/images/wall.png";
-	sl->imgs.exit.relative_path = "./includes/images/Exit.png";
-	sl->imgs.cons.relative_path = "./includes/images/coin_01d.png";
-	sl->imgs.per.img = mlx_png_file_to_image(sl->mlx,
+	sl->imgs.per.relative_path = "./includes/images/per.xpm";
+	sl->imgs.flr.relative_path = "./includes/images/flr.xpm";
+	sl->imgs.wl.relative_path = "./includes/images/wall.xpm";
+	sl->imgs.exit.relative_path = "./includes/images/Exit.xpm";
+	sl->imgs.cons.relative_path = "./includes/images/coin_01d.xpm";
+	sl->imgs.per.img = mlx_xpm_file_to_image(sl->mlx,
 			sl->imgs.per.relative_path, &sl->imgs.per.w, &sl->imgs.per.h);
-	sl->imgs.flr.img = mlx_png_file_to_image(sl->mlx,
+	sl->imgs.flr.img = mlx_xpm_file_to_image(sl->mlx,
 			sl->imgs.flr.relative_path, &sl->imgs.flr.w, &sl->imgs.flr.h);
-	sl->imgs.wl.img = mlx_png_file_to_image(sl->mlx,
+	sl->imgs.wl.img = mlx_xpm_file_to_image(sl->mlx,
 			sl->imgs.wl.relative_path, &sl->imgs.wl.w, &sl->imgs.wl.h);
-	sl->imgs.exit.img = mlx_png_file_to_image(sl->mlx,
+	sl->imgs.exit.img = mlx_xpm_file_to_image(sl->mlx,
 			sl->imgs.exit.relative_path, &sl->imgs.exit.w, &sl->imgs.exit.h);
-	sl->imgs.cons.img = mlx_png_file_to_image(sl->mlx,
+	sl->imgs.cons.img = mlx_xpm_file_to_image(sl->mlx,
 			sl->imgs.cons.relative_path, &sl->imgs.cons.w, &sl->imgs.cons.h);
 	sl->mlx_win = mlx_new_window(sl->mlx,
 			(sl->imgs.flr.w * (ft_strlen(sl->mapa[0])

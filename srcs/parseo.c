@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parseo.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eniglesi <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: eiglesia <eiglesia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/03 09:38:28 by eniglesi          #+#    #+#             */
-/*   Updated: 2022/05/03 09:38:30 by eniglesi         ###   ########.fr       */
+/*   Updated: 2025/10/29 13:39:34 by eiglesia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,8 @@ int	so_long(char **argv, char **mapa)
 	readmap(fd, mapa);
 	close(fd);
 	if (mapa[0] == NULL || mapa[1] == NULL)
-		return (ft_printf("\nERROR\nEl mapa es inválido\n"));
+		return (ber(mapa, "\nERROR\nEl mapa es inválido\n", 0));
 	if (mapa_is_funcional(mapa))
-		return (1);
+		return (ber(mapa, "\n", 1));
 	return (0);
 }

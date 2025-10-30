@@ -12,6 +12,7 @@ all: $(NAME)
 	$(CC) $(FLAGS) -c $< -o $@
 
 $(NAME): $(OBJS)
+	@make -s -C ./minilibx-linux
 	@make -s -C ./includes/printf
 	$(CC) $(FLAGS) -o $(NAME) $(OBJS) $(LIB) -lXext -lX11 -lm -lz
 
